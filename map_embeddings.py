@@ -22,7 +22,7 @@ import numpy as np
 import re
 import sys
 import time
-
+import ext
 
 def dropout(m, p):
     if p <= 0.0:
@@ -141,11 +141,21 @@ def main():
     elif args.precision == 'fp64':
         dtype = 'float64'
 
+    src_counts, trg_counts = ext.get_char_counts(args.src_input, args.trg_input)
+    src_counts = src_counts * .125
+    trg_counts = trg_counts * .125
+
+    # new_embeds = np.concatenate((x, src_counts), axis=1)
+    # same for z
+
     # Read input embeddings
     srcfile = open(args.src_input, encoding=args.encoding, errors='surrogateescape')
     trgfile = open(args.trg_input, encoding=args.encoding, errors='surrogateescape')
     src_words, x = embeddings.read(srcfile, dtype=dtype)
     trg_words, z = embeddings.read(trgfile, dtype=dtype)
+
+    x = np.concatenate((x, src_counts), axis=1)
+    z = np.concatenate((z, trg_counts), axis=1)
 
     # NumPy/CuPy management
     if args.cuda:
@@ -182,10 +192,14 @@ def main():
         embeddings.normalize(xsim, args.normalize)
         embeddings.normalize(zsim, args.normalize)
         sim = xsim.dot(zsim.T)
+
+        # CSLS stuff--takes care of hubness
         if args.csls_neighborhood > 0:
             knn_sim_fwd = topk_mean(sim, k=args.csls_neighborhood)
             knn_sim_bwd = topk_mean(sim.T, k=args.csls_neighborhood)
             sim -= knn_sim_fwd[:, xp.newaxis]/2 + knn_sim_bwd/2
+
+        # Actual creation of dictionary
         if args.direction == 'forward':
             src_indices = xp.arange(sim_size)
             trg_indices = sim.argmax(axis=1)
@@ -196,6 +210,7 @@ def main():
             src_indices = xp.concatenate((xp.arange(sim_size), sim.argmax(axis=0)))
             trg_indices = xp.concatenate((sim.argmax(axis=1), xp.arange(sim_size)))
         del xsim, zsim, sim
+
     elif args.init_numerals:
         numeral_regex = re.compile('^[0-9]+$')
         src_numerals = {word for word in src_words if numeral_regex.match(word) is not None}
@@ -289,6 +304,7 @@ def main():
             w = x_pseudoinv.dot(z[trg_indices])
             x.dot(w, out=xw)
             zw[:] = z
+        # Determining argmax linear transformations; only perform when converged
         else:  # advanced mapping
 
             # TODO xw.dot(wx2, out=xw) and alike not working
