@@ -435,7 +435,7 @@ def main():
             concat_file = open(args.save_before_removing_from_targ, mode='w', encoding=args.encoding, errors='surrogateescape')
             embeddings.write(trg_words, zw, concat_file)
             concat_file.close()
-        trg_words, zw = ext.multi_lan_cleanup(trg_words, zw, lan_tracker, args.remove_lan_from_target)
+        trg_words, zw = ext.multi_lan_cleanup(trg_words, zw, lan_tracker, args.remove_lan_from_target, xp)
     # Write mapped embeddings
     srcfile = open(args.src_output, mode='w', encoding=args.encoding, errors='surrogateescape')
     trgfile = open(args.trg_output, mode='w', encoding=args.encoding, errors='surrogateescape')
