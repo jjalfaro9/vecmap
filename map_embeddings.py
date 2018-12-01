@@ -113,6 +113,7 @@ def main():
     ext_group = parser.add_argument_group('extension arguments', 'CS388L Final Project')
     ext_group.add_argument('--concatenate', nargs='*', default=None, help='any other target languages to be concatenated with first target language')
     ext_group.add_argument('--remove_lan_from_target', nargs='*', default=None, help='remove specific langague embeddings from target embeddings')
+    ext_group.add_argument('--save_before_removing_from_targ', help='when remove_lan_from_target is set, we can still save the concat embeddings with this flag')
     args = parser.parse_args()
 
     if args.supervised is not None:
@@ -430,6 +431,10 @@ def main():
 
     # if requested remove some lans from trg
     if args.remove_lan_from_target:
+        if args.save_before_removing_from_targ:
+            concat_file = open(args.save_before_removing_from_targ, mode='w', encoding=args.encoding, errors='surrogateescape')
+            embeddings.write(trg_words, zw, concat_file)
+            concat_file.close()
         trg_words, zw = ext.multi_lan_cleanup(trg_words, zw, lan_tracker, args.remove_lan_from_target)
     # Write mapped embeddings
     srcfile = open(args.src_output, mode='w', encoding=args.encoding, errors='surrogateescape')
