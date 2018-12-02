@@ -269,6 +269,8 @@ def main():
     keep_prob = args.stochastic_initial
     t = time.time()
     end = not args.self_learning
+    iter_num = 0
+
     while True:
 
         # Increase the keep probability if we have not improve in args.stochastic_interval iterations
@@ -284,6 +286,14 @@ def main():
             w = vt.T.dot(u.T)
             x.dot(w, out=xw)
             zw[:] = z
+            if iter_num == 0:
+                srcfile = open("interm_out_src.emb.txt", mode='w', encoding=args.encoding, errors='surrogateescape')
+                trgfile = open("interm_out_trg.emb.txt", mode='w', encoding=args.encoding, errors='surrogateescape')
+                embeddings.write(src_words, xw, srcfile)
+                embeddings.write(trg_words, zw, trgfile)
+                srcfile.close()
+                trgfile.close()
+                print("Done")
         elif args.unconstrained:  # unconstrained mapping
             x_pseudoinv = xp.linalg.inv(x[src_indices].T.dot(x[src_indices])).dot(x[src_indices].T)
             w = x_pseudoinv.dot(z[trg_indices])
@@ -408,7 +418,7 @@ def main():
 
         t = time.time()
         it += 1
-
+        iter_num += 1
     # Write mapped embeddings
     srcfile = open(args.src_output, mode='w', encoding=args.encoding, errors='surrogateescape')
     trgfile = open(args.trg_output, mode='w', encoding=args.encoding, errors='surrogateescape')
