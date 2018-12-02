@@ -287,8 +287,8 @@ def main():
             x.dot(w, out=xw)
             zw[:] = z
             if iter_num == 0:
-                srcfile = open("interm_out_src.emb.txt", mode='w', encoding=args.encoding, errors='surrogateescape')
-                trgfile = open("interm_out_trg.emb.txt", mode='w', encoding=args.encoding, errors='surrogateescape')
+                srcfile = open("data/new_emb/interm_out_src.emb.txt", mode='w', encoding=args.encoding, errors='surrogateescape')
+                trgfile = open("data/new_emb/interm_out_trg.emb.txt", mode='w', encoding=args.encoding, errors='surrogateescape')
                 embeddings.write(src_words, xw, srcfile)
                 embeddings.write(trg_words, zw, trgfile)
                 srcfile.close()
