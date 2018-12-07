@@ -22,7 +22,7 @@ import numpy as np
 import re
 import sys
 import time
-
+import ext
 
 def dropout(m, p):
     if p <= 0.0:
@@ -143,11 +143,18 @@ def main():
     elif args.precision == 'fp64':
         dtype = 'float64'
 
+    src_counts, trg_counts = ext.get_char_counts(args.src_input, args.trg_input)
+    src_counts = src_counts * .125
+    trg_counts = trg_counts * .125
+
     # Read input embeddings
     srcfile = open(args.src_input, encoding=args.encoding, errors='surrogateescape')
     trgfile = open(args.trg_input, encoding=args.encoding, errors='surrogateescape')
     src_words, x = embeddings.read(srcfile, dtype=dtype)
     trg_words, z = embeddings.read(trgfile, dtype=dtype)
+
+    x = np.concatenate((x, src_counts), axis=1)
+    z = np.concatenate((z, trg_counts), axis=1)
 
     # NumPy/CuPy management
     if args.cuda:
