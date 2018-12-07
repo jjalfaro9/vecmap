@@ -149,9 +149,6 @@ def main():
     src_words, x = embeddings.read(srcfile, dtype=dtype)
     trg_words, z = embeddings.read(trgfile, dtype=dtype)
 
-    save_x = x
-    save_z = z
-
     # NumPy/CuPy management
     if args.cuda:
         if not supports_cupy():
@@ -163,6 +160,9 @@ def main():
     else:
         xp = np
     xp.random.seed(args.seed)
+
+    save_x = x
+    save_z = z
 
     # Build word to index map
     src_word2ind = {word: i for i, word in enumerate(src_words)}
@@ -294,7 +294,7 @@ def main():
             if iter_num == 0:
                 if args.skip_init:
                     xw = save_x
-                    zw = save_z
+                    zw[:] = save_z
 
                 srcfile = open("data/new_emb/interm_out_" + str(args.src_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
                 trgfile = open("data/new_emb/interm_out_" + str(args.trg_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
