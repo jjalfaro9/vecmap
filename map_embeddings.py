@@ -108,6 +108,8 @@ def main():
     self_learning_group.add_argument('--stochastic_interval', default=50, type=int, help='stochastic dictionary induction interval (defaults to 50)')
     self_learning_group.add_argument('--log', help='write to a log file in tsv format at each iteration')
     self_learning_group.add_argument('-v', '--verbose', action='store_true', help='write log information to stderr at each iteration')
+    self_learning_group.add_argument('--skip_init', action='store_true', help='skip initialization (use raw embeddings)')
+
     args = parser.parse_args()
 
     if args.supervised is not None:
@@ -146,6 +148,9 @@ def main():
     trgfile = open(args.trg_input, encoding=args.encoding, errors='surrogateescape')
     src_words, x = embeddings.read(srcfile, dtype=dtype)
     trg_words, z = embeddings.read(trgfile, dtype=dtype)
+
+    save_x = x
+    save_z = z
 
     # NumPy/CuPy management
     if args.cuda:
@@ -287,6 +292,10 @@ def main():
             x.dot(w, out=xw)
             zw[:] = z
             if iter_num == 0:
+                if args.skip_init:
+                    xw = save_x
+                    zw = save_z
+
                 srcfile = open("data/new_emb/interm_out_" + str(args.src_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
                 trgfile = open("data/new_emb/interm_out_" + str(args.trg_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
                 embeddings.write(src_words, xw, srcfile)
@@ -294,6 +303,7 @@ def main():
                 srcfile.close()
                 trgfile.close()
                 print("Done")
+
         elif args.unconstrained:  # unconstrained mapping
             x_pseudoinv = xp.linalg.inv(x[src_indices].T.dot(x[src_indices])).dot(x[src_indices].T)
             w = x_pseudoinv.dot(z[trg_indices])
