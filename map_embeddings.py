@@ -109,6 +109,9 @@ def main():
     self_learning_group.add_argument('--log', help='write to a log file in tsv format at each iteration')
     self_learning_group.add_argument('-v', '--verbose', action='store_true', help='write log information to stderr at each iteration')
     self_learning_group.add_argument('--skip_init', action='store_true', help='skip initialization (use raw embeddings)')
+    self_learning_group.add_argument('--write_interm_emb', action='store_true', help='write intermediate embeddings')
+    self_learning_group.add_argument('--run_number', type=int, default=0, help='run number')
+    self_learning_group.add_argument('--add_aug_vector', action='store_true', help='add letter counts')
 
     args = parser.parse_args()
 
@@ -143,9 +146,10 @@ def main():
     elif args.precision == 'fp64':
         dtype = 'float64'
 
-    src_counts, trg_counts = ext.get_char_counts(args.src_input, args.trg_input)
-    src_counts = src_counts * .125
-    trg_counts = trg_counts * .125
+    if args.add_aug_vector:
+        src_counts, trg_counts = ext.get_char_counts(args.src_input, args.trg_input)
+        src_counts = src_counts * .125
+        trg_counts = trg_counts * .125
 
     # Read input embeddings
     srcfile = open(args.src_input, encoding=args.encoding, errors='surrogateescape')
@@ -153,8 +157,9 @@ def main():
     src_words, x = embeddings.read(srcfile, dtype=dtype)
     trg_words, z = embeddings.read(trgfile, dtype=dtype)
 
-    x = np.concatenate((x, src_counts), axis=1)
-    z = np.concatenate((z, trg_counts), axis=1)
+    if args.add_aug_vector:
+        x = np.concatenate((x, src_counts), axis=1)
+        z = np.concatenate((z, trg_counts), axis=1)
 
     # NumPy/CuPy management
     if args.cuda:
@@ -171,6 +176,7 @@ def main():
     save_x = x
     save_z = z
 
+    start_time = time.time()
     # Build word to index map
     src_word2ind = {word: i for i, word in enumerate(src_words)}
     trg_word2ind = {word: i for i, word in enumerate(trg_words)}
@@ -303,13 +309,14 @@ def main():
                     xw = save_x
                     zw[:] = save_z
 
-                srcfile = open("data/new_emb/interm_out_" + str(args.src_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
-                trgfile = open("data/new_emb/interm_out_" + str(args.trg_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
-                embeddings.write(src_words, xw, srcfile)
-                embeddings.write(trg_words, zw, trgfile)
-                srcfile.close()
-                trgfile.close()
-                print("Done")
+                if args.write_interm_emb:
+                    srcfile = open("data/new_emb/interm_out_" + str(args.src_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
+                    trgfile = open("data/new_emb/interm_out_" + str(args.trg_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
+                    embeddings.write(src_words, xw, srcfile)
+                    embeddings.write(trg_words, zw, trgfile)
+                    srcfile.close()
+                    trgfile.close()
+                    print("Done")
 
         elif args.unconstrained:  # unconstrained mapping
             x_pseudoinv = xp.linalg.inv(x[src_indices].T.dot(x[src_indices])).dot(x[src_indices].T)
@@ -436,7 +443,14 @@ def main():
         t = time.time()
         it += 1
         iter_num += 1
+    end_time = time.time()
     # Write mapped embeddings
+    rpt_file = open("report.txt", "a+")
+    rpt_file.write("Run Number: " + str(args.run_number) + "\n")
+    rpt_file.write("Number of iterations: " + str(it) + "\n")
+    rpt_file.write("Total time: " + str(end_time - start_time) + " s\n")
+    rpt_file.close()
+
     srcfile = open(args.src_output, mode='w', encoding=args.encoding, errors='surrogateescape')
     trgfile = open(args.trg_output, mode='w', encoding=args.encoding, errors='surrogateescape')
     embeddings.write(src_words, xw, srcfile)

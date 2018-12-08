@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import argparse
 
-def main(src_emb, trg_emb, dict_path, sameLanguage):
+def main(src_emb, trg_emb, dict_path, sameLanguage, output_file):
     src_in = open(src_emb, encoding="utf-8", errors='surrogateescape')
     trg_in = open(trg_emb, encoding="utf-8", errors='surrogateescape')
     num_emb = int(src_in.readline().split(" ")[0])
@@ -54,6 +54,8 @@ def main(src_emb, trg_emb, dict_path, sameLanguage):
 
         j = 0
 
+        output_list = []
+
         for iter, item in enumerate(indices_map):
             if item[0] != -1 and item[1] != -1:
                 src_str = src_emb[int(item[0])].split(" ", 1)[1]
@@ -62,7 +64,16 @@ def main(src_emb, trg_emb, dict_path, sameLanguage):
                 trg_vec = np.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
 
                 sim_vec[j] = cosine_similarity(src_vec, trg_vec)[0][0]
+                output_list.append((src_toks[int(item[0])], trg_toks[int(item[1])], str(sim_vec[j])))
                 j += 1
+
+        output_list = sorted(output_list, key=lambda x: x[2], reverse=True)
+
+        if output_file:
+            out_file = open(output_file, "w")
+            for item in output_list:
+                out_file.write(item[0] + " " + item[1] + " " + item[2] + "\n")
+            out_file.close()
     else:
         sim_vec = np.zeros(num_emb)
 
@@ -89,7 +100,8 @@ if __name__ == '__main__':
     parser.add_argument('trg_embeddings', help='the target language embeddings')
     parser.add_argument('--test_dict', type=str, default=None, help='test dictionary')
     parser.add_argument('--same_language', action='store_true', help='the target language embeddings')
+    parser.add_argument('--sorted_file', type=str, default=None, help='file for sorted output')
 
     args = parser.parse_args()
-    main(args.src_embeddings, args.trg_embeddings, args.test_dict, args.same_language)
+    main(args.src_embeddings, args.trg_embeddings, args.test_dict, args.same_language, args.sorted_file)
 
