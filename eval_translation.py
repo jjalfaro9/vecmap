@@ -163,6 +163,7 @@ def main():
             for k in range(j-i):
                 translation[src[i+k]] = nn[k]
 
+    print(translation)
     # Compute accuracy
     accuracy = np.mean([1 if translation[i] in src2trg[i] else 0 for i in src])
     print('Coverage:{0:7.2%}  Accuracy:{1:7.2%}'.format(coverage, accuracy))
