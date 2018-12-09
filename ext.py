@@ -29,8 +29,8 @@ def get_char_counts(src, trg):
     src_in.readline()
     trg_in.readline()
 
-    src_counts = np.zeros((num_src, len(alphabet)), dtype=float)
-    trg_counts = np.zeros((num_trg, len(alphabet)), dtype=float)
+    src_counts = np.zeros((num_src, len(alphabet)), dtype='float32')
+    trg_counts = np.zeros((num_trg, len(alphabet)), dtype='float32')
 
     for i in range(0, num_src):
         token = src_in.readline().split(" ")[0]
