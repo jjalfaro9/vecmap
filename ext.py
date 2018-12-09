@@ -47,4 +47,7 @@ def get_char_counts(src, trg):
     src_in.close()
     trg_in.close()
 
+    src_counts = src_counts + 1.0
+    trg_counts = trg_counts + 1.0
+
     return (src_counts, trg_counts)
