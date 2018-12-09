@@ -338,7 +338,7 @@ def main():
                 wz1 = whitening_transformation(zw[trg_indices])
                 xw = xw.dot(wx1)
                 zw = zw.dot(wz1)
-
+            print(xw.shape, zw.shape, len(src_indices), len(trg_indices))
             # STEP 2: Orthogonal mapping
             wx2, s, wz2_t = xp.linalg.svd(xw[src_indices].T.dot(zw[trg_indices]))
             wz2 = wz2_t.T
