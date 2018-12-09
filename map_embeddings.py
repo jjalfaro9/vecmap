@@ -150,7 +150,7 @@ def main():
         src_counts, trg_counts = ext.get_char_counts(args.src_input, args.trg_input)
         src_counts = src_counts * .125
         trg_counts = trg_counts * .125
-
+    print(src_counts[0:2])
     # Read input embeddings
     srcfile = open(args.src_input, encoding=args.encoding, errors='surrogateescape')
     trgfile = open(args.trg_input, encoding=args.encoding, errors='surrogateescape')
@@ -160,7 +160,7 @@ def main():
     if args.add_aug_vector:
         x = np.concatenate((x, src_counts), axis=1)
         z = np.concatenate((z, trg_counts), axis=1)
-
+    print(x[0])
     # NumPy/CuPy management
     if args.cuda:
         if not supports_cupy():
@@ -184,7 +184,7 @@ def main():
     # STEP 0: Normalization
     embeddings.normalize(x, args.normalize)
     embeddings.normalize(z, args.normalize)
-
+    print(x[0])
     # Build the seed dictionary
     src_indices = []
     trg_indices = []
@@ -339,6 +339,8 @@ def main():
                 xw = xw.dot(wx1)
                 zw = zw.dot(wz1)
             print(xw.shape, zw.shape, len(src_indices), len(trg_indices))
+            print(xw[src_indices].T.dot(zw[trg_indices]))
+            print("Good")
             # STEP 2: Orthogonal mapping
             wx2, s, wz2_t = xp.linalg.svd(xw[src_indices].T.dot(zw[trg_indices]))
             wz2 = wz2_t.T
