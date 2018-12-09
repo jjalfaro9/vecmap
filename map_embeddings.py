@@ -334,6 +334,7 @@ def main():
             # STEP 1: Whitening
             def whitening_transformation(m):
                 u, s, vt = xp.linalg.svd(m, full_matrices=False)
+                print(s)
                 return vt.T.dot(xp.diag(1/s)).dot(vt)
             if args.whiten:
                 wx1 = whitening_transformation(xw[src_indices])
