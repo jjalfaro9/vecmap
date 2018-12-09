@@ -328,7 +328,9 @@ def main():
             # TODO xw.dot(wx2, out=xw) and alike not working
             xw[:] = x
             zw[:] = z
-
+            print(xw)
+            print(zw)
+            print
             # STEP 1: Whitening
             def whitening_transformation(m):
                 u, s, vt = xp.linalg.svd(m, full_matrices=False)
