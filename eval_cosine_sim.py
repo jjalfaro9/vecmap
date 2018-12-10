@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import argparse
 
-def main(src_data, trg_data, use_file_emb, dict_path, sameLanguage, output_file):
+def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, output_file):
     if use_file_emb:
         src_in = open(src_data, encoding="utf-8", errors='surrogateescape')
         trg_in = open(trg_data, encoding="utf-8", errors='surrogateescape')
@@ -112,5 +112,5 @@ if __name__ == '__main__':
     parser.add_argument('--sorted_file', type=str, default=None, help='file for sorted output')
 
     args = parser.parse_args()
-    main(args.src_embeddings, args.trg_embeddings, True, args.test_dict, args.same_language, args.sorted_file)
+    eval_cosine_sim(args.src_embeddings, args.trg_embeddings, True, args.test_dict, args.same_language, args.sorted_file)
 
