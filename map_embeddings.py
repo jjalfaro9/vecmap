@@ -15,7 +15,7 @@
 
 import embeddings
 from cupy_utils import *
-
+from eval_translation import eval_translation
 import argparse
 import collections
 import numpy as np
@@ -112,8 +112,12 @@ def main():
     self_learning_group.add_argument('--write_interm_emb', action='store_true', help='write intermediate embeddings')
     self_learning_group.add_argument('--run_number', type=int, default=0, help='run number')
     self_learning_group.add_argument('--add_aug_vector', action='store_true', help='add letter counts')
+    self_learning_group.add_argument('--report_interval', type=int, default=-1,  help='number of iterations per accuracy report')
+    self_learning_group.add_argument('--test_dict', type=str, default=None,  help='test dictionary for eval_translation')
 
     args = parser.parse_args()
+
+    other_settings = ['csls', float(1), None, 10, False, 'utf-8', 0, 'fp32', True]
 
     if args.supervised is not None:
         parser.set_defaults(init_dictionary=args.supervised, normalize=['unit', 'center', 'unit'], whiten=True, src_reweight=0.5, trg_reweight=0.5, src_dewhiten='src', trg_dewhiten='trg', batch_size=1000)
@@ -150,7 +154,9 @@ def main():
         src_counts, trg_counts = ext.get_char_counts(args.src_input, args.trg_input)
         src_counts = src_counts * .125
         trg_counts = trg_counts * .125
-    print(src_counts[0:2])
+
+    #print(src_counts[0:2])
+
     # Read input embeddings
     srcfile = open(args.src_input, encoding=args.encoding, errors='surrogateescape')
     trgfile = open(args.trg_input, encoding=args.encoding, errors='surrogateescape')
@@ -160,7 +166,7 @@ def main():
     if args.add_aug_vector:
         x = np.concatenate((x, src_counts), axis=1)
         z = np.concatenate((z, trg_counts), axis=1)
-    print(x[0])
+
     # NumPy/CuPy management
     if args.cuda:
         if not supports_cupy():
@@ -317,7 +323,11 @@ def main():
                     srcfile.close()
                     trgfile.close()
                     print("Done")
-
+                if args.report_interval != -1:
+                    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It 0:", other_settings)
+            else:
+                if args.report_interval != -1 and it % args.report_interval == 0:
+                    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
         elif args.unconstrained:  # unconstrained mapping
             x_pseudoinv = xp.linalg.inv(x[src_indices].T.dot(x[src_indices])).dot(x[src_indices].T)
             w = x_pseudoinv.dot(z[trg_indices])
@@ -454,11 +464,6 @@ def main():
         iter_num += 1
     end_time = time.time()
     # Write mapped embeddings
-    rpt_file = open("report.txt", "a+")
-    rpt_file.write("Run Number: " + str(args.run_number) + "\n")
-    rpt_file.write("Number of iterations: " + str(it) + "\n")
-    rpt_file.write("Total time: " + str(end_time - start_time) + " s\n")
-    rpt_file.close()
 
     srcfile = open(args.src_output, mode='w', encoding=args.encoding, errors='surrogateescape')
     trgfile = open(args.trg_output, mode='w', encoding=args.encoding, errors='surrogateescape')
@@ -467,6 +472,12 @@ def main():
     srcfile.close()
     trgfile.close()
 
+    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
+    rpt_file = open("report.txt", "a+")
+    rpt_file.write("Run Number: " + str(args.run_number) + "\n")
+    rpt_file.write("Number of iterations: " + str(it) + "\n")
+    rpt_file.write("Total time: " + str(end_time - start_time) + " s\n")
+    rpt_file.close()
 
 if __name__ == '__main__':
     main()
