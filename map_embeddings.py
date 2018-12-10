@@ -461,6 +461,7 @@ def main():
 
         t = time.time()
         it += 1
+        print("On iteration: " + str(it))
         iter_num += 1
     end_time = time.time()
     # Write mapped embeddings
@@ -472,7 +473,8 @@ def main():
     srcfile.close()
     trgfile.close()
 
-    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
+    if args.report_interval != -1:
+        eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
     rpt_file = open("report.txt", "a+")
     rpt_file.write("Run Number: " + str(args.run_number) + "\n")
     rpt_file.write("Number of iterations: " + str(it) + "\n")
