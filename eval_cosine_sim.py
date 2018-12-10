@@ -64,9 +64,9 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
                     src_vec = np.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
                     trg_vec = np.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
                 else:
-                    src_vec = src_data[1][int(item[0])]
-                    trg_vec = trg_data[1][int(item[1])]
-
+                    src_vec = src_data[1][int(item[0])].reshape(1, -1)
+                    trg_vec = trg_data[1][int(item[1])].reshape(1, -1)
+                print(src_vec, trg_vec)
                 sim_vec[j] = cosine_similarity(src_vec, trg_vec)[0][0]
                 output_list.append((src_toks[int(item[0])], trg_toks[int(item[1])], str(sim_vec[j])))
                 j += 1
