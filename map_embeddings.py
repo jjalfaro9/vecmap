@@ -299,7 +299,7 @@ def main():
             last_improvement = it
 
         # Update the embedding mapping
-        if args.orthogonal or not end:  # orthogonal mapping
+        if args.orthogonal or not end or args.add_aug_vector:  # orthogonal mapping
             u, s, vt = xp.linalg.svd(z[trg_indices].T.dot(x[src_indices]))
             w = vt.T.dot(u.T)
             x.dot(w, out=xw)
