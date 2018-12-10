@@ -2,24 +2,21 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import argparse
 from cupy_utils import *
-import sys
 
-def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, output_file, cuda):
-    # NumPy/CuPy management
-    if cuda:
-        if not supports_cupy():
-            print('ERROR: Install CuPy for CUDA support', file=sys.stderr)
-            sys.exit(-1)
-        xp = get_cupy()
-        x = xp.asarray(src_data[1])
-        z = xp.asarray(trg_data[1])
-    else:
-        xp = np
+def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, output_file):
     if use_file_emb:
         src_in = open(src_data, encoding="utf-8", errors='surrogateescape')
         trg_in = open(trg_data, encoding="utf-8", errors='surrogateescape')
         num_emb = int(src_in.readline().split(" ")[0])
         num_dim = int(trg_in.readline().split(" ")[1])
+
+    # NumPy/CuPy management
+    if not supports_cupy():
+        print('ERROR: Install CuPy for CUDA support', file=sys.stderr)
+        sys.exit(-1)
+    xp = get_cupy()
+    x = xp.asnumpy(src_data[1])
+    z = xp.asnumpy(trg_data[1])
 
     if not sameLanguage:
         match_count = 0
@@ -40,7 +37,7 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
                 src_emb.append(src_in.readline())
                 trg_emb.append(trg_in.readline())
 
-        indices_map = xp.full((len(dict_trans), 2), -1)
+        indices_map = np.full((len(dict_trans), 2), -1)
 
         if use_file_emb:
             src_toks = [item1.split()[0] for item1 in src_emb]
@@ -62,7 +59,7 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
             if match:
                 match_count += 1
 
-        sim_vec = xp.zeros(match_count)
+        sim_vec = np.zeros(match_count)
 
         j = 0
 
@@ -73,11 +70,9 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
                 if use_file_emb:
                     src_str = src_emb[int(item[0])].split(" ", 1)[1]
                     trg_str = trg_emb[int(item[1])].split(" ", 1)[1]
-                    src_vec = xp.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
-                    trg_vec = xp.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
+                    src_vec = np.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
+                    trg_vec = np.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
                 else:
-                    print(src_data[1])
-                    print(trg_data[1])
                     src_vec = x[int(item[0])].reshape(1, -1)
                     trg_vec = z[int(item[1])].reshape(1, -1)
                 print(src_vec, trg_vec)
@@ -93,25 +88,25 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
                 out_file.write(item[0] + " " + item[1] + " " + item[2] + "\n")
             out_file.close()
     else:
-        sim_vec = xp.zeros(num_emb)
+        sim_vec = np.zeros(num_emb)
 
         for i in range(0, num_emb):
             src_tok, src_str = src_in.readline().split(" ", 1)
             trg_tok, trg_str = trg_in.readline().split(" ", 1)
-            src_vec = xp.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
-            trg_vec = xp.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
+            src_vec = np.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
+            trg_vec = np.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
 
             sim_vec[i] = cosine_similarity(src_vec, trg_vec)[0][0]
 
     if not use_file_emb:
         rpt_file = open("report.txt")
-        rpt_file.write("Mean: " + str(xp.mean(sim_vec)) + ", Median: " + str(xp.median(sim_vec)) + ", STD: " + str(xp.std(sim_vec)) + "\n")
+        rpt_file.write("Mean: " + str(np.mean(sim_vec)) + ", Median: " + str(np.median(sim_vec)) + ", STD: " + str(np.std(sim_vec)) + "\n")
         rpt_file.close()
 
-    print("Mean: " + str(xp.mean(sim_vec)))
-    print("Median: " + str(xp.median(sim_vec)))
-    print("Min: " + str(xp.min(sim_vec)))
-    print("Max: " + str(xp.max(sim_vec)))
+    print("Mean: " + str(np.mean(sim_vec)))
+    print("Median: " + str(np.median(sim_vec)))
+    print("Min: " + str(np.min(sim_vec)))
+    print("Max: " + str(np.max(sim_vec)))
 
     if use_file_emb:
         src_in.close()
@@ -126,5 +121,5 @@ if __name__ == '__main__':
     parser.add_argument('--sorted_file', type=str, default=None, help='file for sorted output')
 
     args = parser.parse_args()
-    eval_cosine_sim(args.src_embeddings, args.trg_embeddings, True, args.test_dict, args.same_language, args.sorted_file, False)
+    eval_cosine_sim(args.src_embeddings, args.trg_embeddings, True, args.test_dict, args.same_language, args.sorted_file)
 
