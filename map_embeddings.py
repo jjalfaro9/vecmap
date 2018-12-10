@@ -301,8 +301,10 @@ def main():
         if it - last_improvement > args.stochastic_interval:
             if keep_prob >= 1.0:
                 end = True
+            store = keep_prob
             keep_prob = min(1.0, args.stochastic_multiplier*keep_prob)
             last_improvement = it
+            eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it - 1) + " (rate change from " + str(store) + " to " + str(keep_prob) + "):", other_settings)
 
         # Update the embedding mapping
         if args.orthogonal or not end or args.add_aug_vector:  # orthogonal mapping
