@@ -324,7 +324,9 @@ def main():
                     trgfile.close()
                     print("Done")
                 if args.report_interval != -1:
+                    print("Working on it")
                     eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It 0:", other_settings)
+                    print("Done here")
             else:
                 if args.report_interval != -1 and it % args.report_interval == 0:
                     eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
