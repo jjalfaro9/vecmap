@@ -64,8 +64,8 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
                     src_vec = np.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
                     trg_vec = np.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
                 else:
-                    print(src_data[1][0])
-                    print(trg_data[1][0])
+                    print(src_data[1])
+                    print(trg_data[1])
                     src_vec = src_data[1][0][int(item[0])].reshape(1, -1)
                     trg_vec = trg_data[1][0][int(item[1])].reshape(1, -1)
                 print(src_vec, trg_vec)
