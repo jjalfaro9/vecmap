@@ -16,6 +16,7 @@
 import embeddings
 from cupy_utils import *
 from eval_translation import eval_translation
+from eval_cosine_sim import eval_cosine_sim
 import argparse
 import collections
 import numpy as np
@@ -304,7 +305,8 @@ def main():
             store = keep_prob
             keep_prob = min(1.0, args.stochastic_multiplier*keep_prob)
             last_improvement = it
-            eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it - 1) + " (rate change from " + str(store) + " to " + str(keep_prob) + "):", other_settings)
+            if not end:
+                eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it - 1) + " (rate change from " + str(store) + " to " + str(keep_prob) + "):", other_settings)
 
         # Update the embedding mapping
         if args.orthogonal or not end or args.add_aug_vector:  # orthogonal mapping
@@ -328,10 +330,14 @@ def main():
                 if args.report_interval != -1:
                     print("Working on it")
                     eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It 0:", other_settings)
+                    eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "run" + str(args.run_number) + "init_cos_sort.txt")
+
                     print("Done here")
             else:
                 if args.report_interval != -1 and it % args.report_interval == 0:
                     eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
+                    eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, None)
+
         elif args.unconstrained:  # unconstrained mapping
             x_pseudoinv = xp.linalg.inv(x[src_indices].T.dot(x[src_indices])).dot(x[src_indices].T)
             w = x_pseudoinv.dot(z[trg_indices])
@@ -479,7 +485,9 @@ def main():
 
     if args.report_interval != -1:
         eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
-    rpt_file = open("report.txt", "a+")
+        eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "run" + str(args.run_number) + "last_cos_sort.txt")
+
+        rpt_file = open("report.txt", "a+")
     rpt_file.write("Run Number: " + str(args.run_number) + "\n")
     rpt_file.write("Number of iterations: " + str(it) + "\n")
     rpt_file.write("Total time: " + str(end_time - start_time) + " s\n")

@@ -2,11 +2,12 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import argparse
 
-def main(src_emb, trg_emb, dict_path, sameLanguage, output_file):
-    src_in = open(src_emb, encoding="utf-8", errors='surrogateescape')
-    trg_in = open(trg_emb, encoding="utf-8", errors='surrogateescape')
-    num_emb = int(src_in.readline().split(" ")[0])
-    num_dim = int(trg_in.readline().split(" ")[1])
+def main(src_data, trg_data, use_file_emb, dict_path, sameLanguage, output_file):
+    if use_file_emb:
+        src_in = open(src_data, encoding="utf-8", errors='surrogateescape')
+        trg_in = open(trg_data, encoding="utf-8", errors='surrogateescape')
+        num_emb = int(src_in.readline().split(" ")[0])
+        num_dim = int(trg_in.readline().split(" ")[1])
 
     if not sameLanguage:
         match_count = 0
@@ -22,14 +23,19 @@ def main(src_emb, trg_emb, dict_path, sameLanguage, output_file):
 
         dict_in.close()
 
-        for i in range(0, num_emb):
-            src_emb.append(src_in.readline())
-            trg_emb.append(trg_in.readline())
+        if use_file_emb:
+            for i in range(0, num_emb):
+                src_emb.append(src_in.readline())
+                trg_emb.append(trg_in.readline())
 
         indices_map = np.full((len(dict_trans), 2), -1)
 
-        src_toks = [item1.split()[0] for item1 in src_emb]
-        trg_toks = [item1.split()[0] for item1 in trg_emb]
+        if use_file_emb:
+            src_toks = [item1.split()[0] for item1 in src_emb]
+            trg_toks = [item1.split()[0] for item1 in trg_emb]
+        else:
+            src_toks = src_data[0]
+            trg_toks = trg_data[0]
 
         for iter, item in enumerate(dict_trans):
             match = False
@@ -44,12 +50,6 @@ def main(src_emb, trg_emb, dict_path, sameLanguage, output_file):
             if match:
                 match_count += 1
 
-        src_in.seek(0, 0)
-        trg_in.seek(0, 0)
-
-        src_in.readline()
-        trg_in.readline()
-
         sim_vec = np.zeros(match_count)
 
         j = 0
@@ -58,10 +58,14 @@ def main(src_emb, trg_emb, dict_path, sameLanguage, output_file):
 
         for iter, item in enumerate(indices_map):
             if item[0] != -1 and item[1] != -1:
-                src_str = src_emb[int(item[0])].split(" ", 1)[1]
-                trg_str = trg_emb[int(item[1])].split(" ", 1)[1]
-                src_vec = np.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
-                trg_vec = np.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
+                if use_file_emb:
+                    src_str = src_emb[int(item[0])].split(" ", 1)[1]
+                    trg_str = trg_emb[int(item[1])].split(" ", 1)[1]
+                    src_vec = np.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
+                    trg_vec = np.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
+                else:
+                    src_vec = src_data[1][int(item[0])]
+                    trg_vec = trg_data[1][int(item[1])]
 
                 sim_vec[j] = cosine_similarity(src_vec, trg_vec)[0][0]
                 output_list.append((src_toks[int(item[0])], trg_toks[int(item[1])], str(sim_vec[j])))
@@ -83,16 +87,21 @@ def main(src_emb, trg_emb, dict_path, sameLanguage, output_file):
             src_vec = np.fromstring(src_str, dtype=float, sep=' ').reshape(1, -1)
             trg_vec = np.fromstring(trg_str, dtype=float, sep=' ').reshape(1, -1)
 
-
             sim_vec[i] = cosine_similarity(src_vec, trg_vec)[0][0]
+
+    if not use_file_emb:
+        rpt_file = open("report.txt")
+        rpt_file.write("Mean: " + str(np.mean(sim_vec)) + ", Median: " + str(np.median(sim_vec)) + ", STD: " + str(np.std(sim_vec)) + "\n")
+        rpt_file.close()
 
     print("Mean: " + str(np.mean(sim_vec)))
     print("Median: " + str(np.median(sim_vec)))
     print("Min: " + str(np.min(sim_vec)))
     print("Max: " + str(np.max(sim_vec)))
 
-    src_in.close()
-    trg_in.close()
+    if use_file_emb:
+        src_in.close()
+        trg_in.close()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Calculate cosine similarity metrics')
@@ -103,5 +112,5 @@ if __name__ == '__main__':
     parser.add_argument('--sorted_file', type=str, default=None, help='file for sorted output')
 
     args = parser.parse_args()
-    main(args.src_embeddings, args.trg_embeddings, args.test_dict, args.same_language, args.sorted_file)
+    main(args.src_embeddings, args.trg_embeddings, True, args.test_dict, args.same_language, args.sorted_file)
 
