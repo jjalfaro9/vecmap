@@ -310,7 +310,7 @@ def main():
                 eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it - 1) + " (rate change from " + str(store) + " to " + str(keep_prob) + "):", other_settings)
 
         # Update the embedding mapping
-        git aif args.orthogonal or not end or args.add_aug_vector:  # orthogonal mapping
+        if args.orthogonal or not end or args.add_aug_vector:  # orthogonal mapping
             u, s, vt = xp.linalg.svd(z[trg_indices].T.dot(x[src_indices]))
             w = vt.T.dot(u.T)
             x.dot(w, out=xw)
