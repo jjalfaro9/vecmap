@@ -43,7 +43,7 @@ def topk_mean(m, k, inplace=False):  # TODO Assuming that axis is 1
     return ans / k
 
 
-def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_msg, other_settings):
+def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_msg, trans_out_file, other_settings):
 
     p_retrieval = other_settings[0]
     p_inv_temperature = other_settings[1]
@@ -166,11 +166,24 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
     # Compute accuracy
     accuracy = np.mean([1 if translation[i] in src2trg[i] else 0 for i in src])
 
+    correct = [i for i in src if translation[i] in src2trg[i]]
+    incorrect = [i for i in src if translation[i] not in src2trg[i]]
+
+    if trans_out_file:
+        trans_out = open(trans_out_file, "w")
+        trans_out.write("##########Correct:\n")
+        for i in correct:
+            trans_out.write(i + ": System{" + translation[i] + "} | Gold{" + str(src2trg[i]) + "}\n")
+        trans_out.write("##########Incorrect:\n")
+        for i in incorrect:
+            trans_out.write(i + ": System{" + translation[i] + "} | Gold{" + str(src2trg[i]) + "}\n")
+        trans_out.close()
+
     if rpt_file:
         out_file = open(rpt_file, "a+")
         out_file.write(run_msg + "\n")
 
-        out_file.write('Coverage:{0:7.2%}  Accuracy:{1:7.2%}'.format(coverage, accuracy) + "\n\n")
+        out_file.write('Coverage:{0:7.2%}  Accuracy:{1:7.2%}'.format(coverage, accuracy) + "\n")
         out_file.close()
     else:
         print('Coverage:{0:7.2%}  Accuracy:{1:7.2%}'.format(coverage, accuracy))
@@ -195,4 +208,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     other_settings = [args.retrieval, args.inv_temperature, args.inv_sample, args.neighborhood, args.dot, args.encoding, args.seed, args.precision, args.cuda]
-    eval_translation(args.src_embeddings, args.trg_embeddings, True, args.dictionary, args.rpt_file, args.run_msg, other_settings)
+    eval_translation(args.src_embeddings, args.trg_embeddings, True, args.dictionary, args.rpt_file, args.run_msg, "trans_out.txt", other_settings)

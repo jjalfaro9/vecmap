@@ -329,8 +329,8 @@ def main():
                     print("Done")
                 if args.report_interval != -1:
                     print("Working on it")
-                    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It 0:", other_settings)
-                    eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "run" + str(args.run_number) + "init_cos_sort.txt")
+                    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It 0:", "trans_out_run" + str(args.run_number) + "init.txt", other_settings)
+                    eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "Run" + str(args.run_number) + "init_cos_sort.txt")
 
                     print("Done here")
             else:
@@ -484,14 +484,14 @@ def main():
     trgfile.close()
 
     if args.report_interval != -1:
-        eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
+        eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", "trans_out_run" + str(args.run_number) + "last.txt", other_settings)
         eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "run" + str(args.run_number) + "last_cos_sort.txt")
 
         rpt_file = open("report.txt", "a+")
-    rpt_file.write("Run Number: " + str(args.run_number) + "\n")
-    rpt_file.write("Number of iterations: " + str(it) + "\n")
-    rpt_file.write("Total time: " + str(end_time - start_time) + " s\n")
-    rpt_file.close()
+        rpt_file.write("Run Number: " + str(args.run_number) + "\n")
+        rpt_file.write("Number of iterations: " + str(it) + "\n")
+        rpt_file.write("Total time: " + str(end_time - start_time) + " s\n")
+        rpt_file.close()
 
 if __name__ == '__main__':
     main()
