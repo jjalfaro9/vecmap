@@ -99,7 +99,7 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
             sim_vec[i] = cosine_similarity(src_vec, trg_vec)[0][0]
 
     if not use_file_emb:
-        rpt_file = open("report.txt")
+        rpt_file = open("report.txt", "a+")
         rpt_file.write("Mean: " + str(np.mean(sim_vec)) + ", Median: " + str(np.median(sim_vec))) #+ ", STD: " + str(np.std(sim_vec)) + "\n")
         rpt_file.close()
 
