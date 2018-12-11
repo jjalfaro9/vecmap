@@ -116,7 +116,7 @@ def main():
     self_learning_group.add_argument('--report_interval', type=int, default=-1,  help='number of iterations per accuracy report')
     self_learning_group.add_argument('--test_dict', type=str, default=None,  help='test dictionary for eval_translation')
     self_learning_group.add_argument('--selective_dropout', action='store_true',  help='prevent dropout on orthography set')
-
+    self_learning_group.add_argument('--orthographic_sim', help='path to file with data to compute sim matrix')
     args = parser.parse_args()
 
     other_settings = ['csls', float(1), None, 10, False, 'utf-8', 0, 'fp32', True]
@@ -168,6 +168,10 @@ def main():
     if args.add_aug_vector:
         x = np.concatenate((x, src_counts), axis=1)
         z = np.concatenate((z, trg_counts), axis=1)
+    if args.orthographic_sim:
+        f = open(args.orthographic_sim, encoding=args.encoding, errors='surrogateescape')
+        orthographic_sim = ext.orthographic_sim(f)
+        f.close()
 
     # NumPy/CuPy management
     if args.cuda:
@@ -177,6 +181,8 @@ def main():
         xp = get_cupy()
         x = xp.asarray(x)
         z = xp.asarray(z)
+        if args.orthographic_sim:
+            orthographic_sim = xp.asarray(orthographic_sim)
     else:
         xp = np
     xp.random.seed(args.seed)
@@ -412,6 +418,8 @@ def main():
                 for i in range(0, src_size, simfwd.shape[0]):
                     j = min(i + simfwd.shape[0], src_size)
                     xw[i:j].dot(zw[:trg_size].T, out=simfwd[:j-i])
+                    if args.orthographic_sim:
+                        simfwd[:j-i] += orthographic_sim[i:j, :trg_size]
                     simfwd[:j-i].max(axis=1, out=best_sim_forward[i:j])
                     simfwd[:j-i] -= knn_sim_bwd/2  # Equivalent to the real CSLS scores for NN
                     dropout(simfwd[:j-i], 1 - keep_prob).argmax(axis=1, out=trg_indices_forward[i:j])
@@ -424,6 +432,8 @@ def main():
                 for i in range(0, trg_size, simbwd.shape[0]):
                     j = min(i + simbwd.shape[0], trg_size)
                     zw[i:j].dot(xw[:src_size].T, out=simbwd[:j-i])
+                    if args.orthographic_sim:
+                        simbwd[:j-i] += orthographic_sim.T[i:j, :src_size]
                     simbwd[:j-i].max(axis=1, out=best_sim_backward[i:j])
                     simbwd[:j-i] -= knn_sim_fwd/2  # Equivalent to the real CSLS scores for NN
                     dropout(simbwd[:j-i], 1 - keep_prob).argmax(axis=1, out=src_indices_backward[i:j])
