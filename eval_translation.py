@@ -174,10 +174,11 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
         trans_out.write("##########Correct:\n")
 
         for i in correct:
-            trans_out.write(src_words[i] + ": System{" + translation[i] + "} | Gold{" + str(src2trg[i]) + "}\n")
+            print(src_words[i])
+            trans_out.write(src_words[i] + ": System{" + trg_words[translation[i]] + "} | Gold{" + str(src2trg[i]) + "}\n")
         trans_out.write("##########Incorrect:\n")
         for i in incorrect:
-            trans_out.write(src_words[i] + ": System{" + translation[i] + "} | Gold{" + str(src2trg[i]) + "}\n")
+            trans_out.write(src_words[i] + ": System{" + trg_words[translation[i]] + "} | Gold{" + str(src2trg[i]) + "}\n")
         trans_out.close()
 
     if rpt_file:
