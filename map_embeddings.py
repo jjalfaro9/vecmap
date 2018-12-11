@@ -330,13 +330,13 @@ def main():
                 if args.report_interval != -1:
                     print("Working on it")
                     eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It 0:", other_settings)
-                    eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "run" + str(args.run_number) + "init_cos_sort.txt", args.cuda)
+                    eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "run" + str(args.run_number) + "init_cos_sort.txt")
 
                     print("Done here")
             else:
                 if args.report_interval != -1 and it % args.report_interval == 0:
                     eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
-                    eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, None, args.cuda)
+                    eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, None)
 
         elif args.unconstrained:  # unconstrained mapping
             x_pseudoinv = xp.linalg.inv(x[src_indices].T.dot(x[src_indices])).dot(x[src_indices].T)
@@ -485,7 +485,7 @@ def main():
 
     if args.report_interval != -1:
         eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
-        eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "run" + str(args.run_number) + "last_cos_sort.txt", args.cuda)
+        eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, "run" + str(args.run_number) + "last_cos_sort.txt")
 
         rpt_file = open("report.txt", "a+")
     rpt_file.write("Run Number: " + str(args.run_number) + "\n")
