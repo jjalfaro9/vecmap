@@ -321,7 +321,7 @@ def main():
                 eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it - 1) + " (rate change from " + str(store) + " to " + str(keep_prob) + "):", None, other_settings)
 
         # Update the embedding mapping
-        if args.orthogonal or not end or args.add_aug_vector:  # orthogonal mapping
+        if args.orthogonal or not end: #or args.add_aug_vector:  # orthogonal mapping
             u, s, vt = xp.linalg.svd(z[trg_indices].T.dot(x[src_indices]))
             w = vt.T.dot(u.T)
             x.dot(w, out=xw)
@@ -356,54 +356,54 @@ def main():
             x.dot(w, out=xw)
             zw[:] = z
         else:  # advanced mapping
-            if not args.add_aug_vector:
-                # TODO xw.dot(wx2, out=xw) and alike not working
-                xw[:] = x
-                zw[:] = z
-                print(xw)
-                print(zw)
+            #if not args.add_aug_vector:
+            # TODO xw.dot(wx2, out=xw) and alike not working
+            xw[:] = x
+            zw[:] = z
+            print(xw)
+            print(zw)
 
-                # STEP 1: Whitening
-                def whitening_transformation(m):
-                    u, s, vt = xp.linalg.svd(m, full_matrices=False)
-                    print("S", s)
-                    print("VT", vt)
-                    return vt.T.dot(xp.diag(1/s)).dot(vt)
+            # STEP 1: Whitening
+            def whitening_transformation(m):
+                u, s, vt = xp.linalg.svd(m, full_matrices=False)
+                print("S", s)
+                print("VT", vt)
+                return vt.T.dot(xp.diag(1/s)).dot(vt)
 
-                if args.whiten:
-                    wx1 = whitening_transformation(xw[src_indices])
-                    wz1 = whitening_transformation(zw[trg_indices])
-                    xw = xw.dot(wx1)
-                    zw = zw.dot(wz1)
+            if args.whiten:
+                wx1 = whitening_transformation(xw[src_indices])
+                wz1 = whitening_transformation(zw[trg_indices])
+                xw = xw.dot(wx1)
+                zw = zw.dot(wz1)
 
-                print(xw.shape, zw.shape, len(src_indices), len(trg_indices))
-                print(xw[src_indices].T.dot(zw[trg_indices]))
-                print("Good")
+            print(xw.shape, zw.shape, len(src_indices), len(trg_indices))
+            print(xw[src_indices].T.dot(zw[trg_indices]))
+            print("Good")
 
-                # STEP 2: Orthogonal mapping
-                wx2, s, wz2_t = xp.linalg.svd(xw[src_indices].T.dot(zw[trg_indices]))
-                wz2 = wz2_t.T
-                xw = xw.dot(wx2)
-                zw = zw.dot(wz2)
+            # STEP 2: Orthogonal mapping
+            wx2, s, wz2_t = xp.linalg.svd(xw[src_indices].T.dot(zw[trg_indices]))
+            wz2 = wz2_t.T
+            xw = xw.dot(wx2)
+            zw = zw.dot(wz2)
 
-                # STEP 3: Re-weighting
-                xw *= s**args.src_reweight
-                zw *= s**args.trg_reweight
+            # STEP 3: Re-weighting
+            xw *= s**args.src_reweight
+            zw *= s**args.trg_reweight
 
-                # STEP 4: De-whitening
-                if args.src_dewhiten == 'src':
-                    xw = xw.dot(wx2.T.dot(xp.linalg.inv(wx1)).dot(wx2))
-                elif args.src_dewhiten == 'trg':
-                    xw = xw.dot(wz2.T.dot(xp.linalg.inv(wz1)).dot(wz2))
-                if args.trg_dewhiten == 'src':
-                    zw = zw.dot(wx2.T.dot(xp.linalg.inv(wx1)).dot(wx2))
-                elif args.trg_dewhiten == 'trg':
-                    zw = zw.dot(wz2.T.dot(xp.linalg.inv(wz1)).dot(wz2))
+            # STEP 4: De-whitening
+            if args.src_dewhiten == 'src':
+                xw = xw.dot(wx2.T.dot(xp.linalg.inv(wx1)).dot(wx2))
+            elif args.src_dewhiten == 'trg':
+                xw = xw.dot(wz2.T.dot(xp.linalg.inv(wz1)).dot(wz2))
+            if args.trg_dewhiten == 'src':
+                zw = zw.dot(wx2.T.dot(xp.linalg.inv(wx1)).dot(wx2))
+            elif args.trg_dewhiten == 'trg':
+                zw = zw.dot(wz2.T.dot(xp.linalg.inv(wz1)).dot(wz2))
 
-                # STEP 5: Dimensionality reduction
-                if args.dim_reduction > 0:
-                    xw = xw[:, :args.dim_reduction]
-                    zw = zw[:, :args.dim_reduction]
+            # STEP 5: Dimensionality reduction
+            if args.dim_reduction > 0:
+                xw = xw[:, :args.dim_reduction]
+                zw = zw[:, :args.dim_reduction]
 
         # Self-learning
         if end:
