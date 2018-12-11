@@ -189,9 +189,13 @@ def main():
     src_word2ind = {word: i for i, word in enumerate(src_words)}
     trg_word2ind = {word: i for i, word in enumerate(trg_words)}
 
-    # STEP 0: Normalization
-    embeddings.normalize(x, args.normalize)
-    embeddings.normalize(z, args.normalize)
+    if args.add_aug_vector:
+        embeddings.normalize(x, ['unit'])
+        embeddings.normalize(z, ['unit'])
+    else:
+        # STEP 0: Normalization
+        embeddings.normalize(x, args.normalize)
+        embeddings.normalize(z, args.normalize)
     print(x[0])
     # Build the seed dictionary
     src_indices = []
