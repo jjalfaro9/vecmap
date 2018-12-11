@@ -162,6 +162,8 @@ def main():
         xp = get_cupy()
         x = xp.asarray(x)
         z = xp.asarray(z)
+        if args.orthographic_sim:
+            orthographic_sim = xp.asarray(orthographic_sim)
     else:
         xp = np
     xp.random.seed(args.seed)

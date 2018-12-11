@@ -3,7 +3,7 @@ import numpy as np
 def orthographic_sim(file, dtype='float'):
     # columns : src, trg, NL, Sim_score, src_idx, trg_idx
     header = file.readline().split('\t')
-    matrix = np.empty((200000, 200000), dtype=dtype)
+    matrix = np.empty((20000, 20000), dtype=dtype)
     for line in file:
         info = line.split('\t')
         sim_score = float(info[3])
