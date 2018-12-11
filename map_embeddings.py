@@ -310,7 +310,7 @@ def main():
                 eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it - 1) + " (rate change from " + str(store) + " to " + str(keep_prob) + "):", other_settings)
 
         # Update the embedding mapping
-        if args.orthogonal or not end or args.add_aug_vector:  # orthogonal mapping
+        git aif args.orthogonal or not end or args.add_aug_vector:  # orthogonal mapping
             u, s, vt = xp.linalg.svd(z[trg_indices].T.dot(x[src_indices]))
             w = vt.T.dot(u.T)
             x.dot(w, out=xw)
@@ -336,7 +336,7 @@ def main():
                     print("Done here")
             else:
                 if args.report_interval != -1 and it % args.report_interval == 0:
-                    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", Nother_settings)
+                    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", None, other_settings)
                     eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, None)
 
         elif args.unconstrained:  # unconstrained mapping
