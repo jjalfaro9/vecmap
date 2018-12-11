@@ -75,7 +75,7 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
                 else:
                     src_vec = x[int(item[0])].reshape(1, -1)
                     trg_vec = z[int(item[1])].reshape(1, -1)
-                print(src_vec, trg_vec)
+                #print(src_vec, trg_vec)
                 sim_vec[j] = cosine_similarity(src_vec, trg_vec)[0][0]
                 output_list.append((src_toks[int(item[0])], trg_toks[int(item[1])], str(sim_vec[j])))
                 j += 1
