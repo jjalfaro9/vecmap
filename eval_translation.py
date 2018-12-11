@@ -65,8 +65,8 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
 
     if use_file_emb:
         # Read input embeddings
-        srcfile = open(src_emb, encoding=p_encoding, errors='surrogatepass')
-        trgfile = open(trg_emb, encoding=p_encoding, errors='surrogatepass')
+        srcfile = open(src_emb, encoding=p_encoding, errors='surrogateescape')
+        trgfile = open(trg_emb, encoding=p_encoding, errors='surrogateescape')
         src_words, x = embeddings.read(srcfile, dtype=dtype)
         trg_words, z = embeddings.read(trgfile, dtype=dtype)
     else:
@@ -95,7 +95,7 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
     trg_word2ind = {word: i for i, word in enumerate(trg_words)}
 
     # Read dictionary and compute coverage
-    f = open(test_dict, encoding=p_encoding, errors='surrogatepass')
+    f = open(test_dict, encoding=p_encoding, errors='surrogateescape')
     src2trg = collections.defaultdict(set)
     oov = set()
     vocab = set()
