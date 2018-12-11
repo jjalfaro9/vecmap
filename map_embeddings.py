@@ -168,6 +168,7 @@ def main():
     if args.add_aug_vector:
         x = np.concatenate((x, src_counts), axis=1)
         z = np.concatenate((z, trg_counts), axis=1)
+
     if args.orthographic_sim:
         f = open(args.orthographic_sim, encoding=args.encoding, errors='surrogateescape')
         orthographic_sim = ext.orthographic_sim(f)
@@ -195,13 +196,13 @@ def main():
     src_word2ind = {word: i for i, word in enumerate(src_words)}
     trg_word2ind = {word: i for i, word in enumerate(trg_words)}
 
-    if args.add_aug_vector:
-        embeddings.normalize(x, ['unit'])
-        embeddings.normalize(z, ['unit'])
-    else:
+    #if args.add_aug_vector:
+    #    embeddings.normalize(x, ['unit'])
+    #    embeddings.normalize(z, ['unit'])
+    #else:
         # STEP 0: Normalization
-        embeddings.normalize(x, args.normalize)
-        embeddings.normalize(z, args.normalize)
+    embeddings.normalize(x, args.normalize)
+    embeddings.normalize(z, args.normalize)
     print(x[0])
     # Build the seed dictionary
     src_indices = []
