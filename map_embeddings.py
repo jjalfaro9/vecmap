@@ -115,6 +115,7 @@ def main():
     self_learning_group.add_argument('--add_aug_vector', action='store_true', help='add letter counts')
     self_learning_group.add_argument('--report_interval', type=int, default=-1,  help='number of iterations per accuracy report')
     self_learning_group.add_argument('--test_dict', type=str, default=None,  help='test dictionary for eval_translation')
+    self_learning_group.add_argument('--selective_dropout', action='store_true',  help='prevent dropout on orthography set')
 
     args = parser.parse_args()
 
@@ -305,7 +306,7 @@ def main():
             store = keep_prob
             keep_prob = min(1.0, args.stochastic_multiplier*keep_prob)
             last_improvement = it
-            if not end:
+            if not end and args.report_interval != -1:
                 eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it - 1) + " (rate change from " + str(store) + " to " + str(keep_prob) + "):", other_settings)
 
         # Update the embedding mapping
@@ -335,7 +336,7 @@ def main():
                     print("Done here")
             else:
                 if args.report_interval != -1 and it % args.report_interval == 0:
-                    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", other_settings)
+                    eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it) + ":", Nother_settings)
                     eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, None)
 
         elif args.unconstrained:  # unconstrained mapping
