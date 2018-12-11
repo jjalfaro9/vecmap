@@ -16,6 +16,7 @@
 from cupy_utils import *
 
 import numpy as np
+import argparse
 
 
 def read(file, threshold=0, vocabulary=None, dtype='float'):
@@ -78,3 +79,22 @@ def normalize(matrix, actions):
             length_normalize_dimensionwise(matrix)
         elif action == 'centeremb':
             mean_center_embeddingwise(matrix)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='get words for language')
+    parser.add_argument('--input', help='the input source embeddings')
+    parser.add_argument('--output', help='the output target embeddings')
+
+    args = parser.parse_args()
+
+    in_file = open(args.input, encoding='utf-8', errors='surrogateescape')
+
+    (words, _) = read(in_file)
+
+    out_file = open(args.output, mode='w', encoding='utf-8', errors='surrogateescape')
+
+    for i in range(len(words)):
+        print(words[i] + "\t" + repr(i), file=out_file)
+
+    in_file.close()
+    out_file.close()
