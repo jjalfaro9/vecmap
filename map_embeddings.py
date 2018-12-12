@@ -32,8 +32,8 @@ def dropout(m, p, ortho_sim):
         xp = get_array_module(m)
         mask = xp.random.rand(*m.shape) >= p
         if ortho_sim is not None:
-            nonzero = xp.transpose(xp.nonzero(ortho_sim))
-            for nz in nonzero:
+            nonzero = xp.nonzero(ortho_sim)
+            for nz in zip(nonzero[0], nonzero[1]):
                 mask[nz[0], nz[1]] = True
         return m*mask
 
