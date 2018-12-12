@@ -201,8 +201,8 @@ def main():
        embeddings.normalize(z, ['unit'])
     else:
         # STEP 0: Normalization
-    embeddings.normalize(x, args.normalize)
-    embeddings.normalize(z, args.normalize)
+        embeddings.normalize(x, args.normalize)
+        embeddings.normalize(z, args.normalize)
     print(x[0])
     # Build the seed dictionary
     src_indices = []
