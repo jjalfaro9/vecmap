@@ -25,12 +25,16 @@ import sys
 import time
 import ext
 
-def dropout(m, p):
+def dropout(m, p, ortho_sim):
     if p <= 0.0:
         return m
     else:
         xp = get_array_module(m)
         mask = xp.random.rand(*m.shape) >= p
+        if ortho_sim is not None:
+            nonzero = xp.transpose(xp.nonzero(ortho_sim))
+            for nz in nonzero:
+                mask[nz[0], nz[1]] = True
         return m*mask
 
 
@@ -117,6 +121,7 @@ def main():
     self_learning_group.add_argument('--test_dict', type=str, default=None,  help='test dictionary for eval_translation')
     self_learning_group.add_argument('--selective_dropout', action='store_true',  help='prevent dropout on orthography set')
     self_learning_group.add_argument('--orthographic_sim', help='path to file with data to compute sim matrix')
+    self_learning_group.add_argument('--anchor', action='store_true', help='do not perform dropout on certain values based on orthography')
     args = parser.parse_args()
 
     other_settings = ['csls', float(1), None, 10, False, 'utf-8', 0, 'fp32', True]
@@ -427,7 +432,10 @@ def main():
                         simfwd[:j-i] += orthographic_sim[i:j, :trg_size]
                     simfwd[:j-i].max(axis=1, out=best_sim_forward[i:j])
                     simfwd[:j-i] -= knn_sim_bwd/2  # Equivalent to the real CSLS scores for NN
-                    dropout(simfwd[:j-i], 1 - keep_prob).argmax(axis=1, out=trg_indices_forward[i:j])
+                    if args.orthographic_sim and args.anchor:
+                        dropout(simfwd[:j-i], 1 - keep_prob, orthographic_sim[i:j, :trg_size]).argmax(axis=1, out=trg_indices_forward[i:j])
+                    else:
+                        dropout(simfwd[:j-i], 1 - keep_prob, None).argmax(axis=1, out=trg_indices_forward[i:j])
             if args.direction in ('backward', 'union'):
                 if args.csls_neighborhood > 0:
                     for i in range(0, src_size, simfwd.shape[0]):
@@ -441,7 +449,10 @@ def main():
                         simbwd[:j-i] += orthographic_sim.T[i:j, :src_size]
                     simbwd[:j-i].max(axis=1, out=best_sim_backward[i:j])
                     simbwd[:j-i] -= knn_sim_fwd/2  # Equivalent to the real CSLS scores for NN
-                    dropout(simbwd[:j-i], 1 - keep_prob).argmax(axis=1, out=src_indices_backward[i:j])
+                    if args.orthographic_sim and args.anchor:
+                        dropout(simbwd[:j-i], 1 - keep_prob, orthographic_sim.T[i:j, :src_size]).argmax(axis=1, out=src_indices_backward[i:j])
+                    else:
+                        dropout(simbwd[:j-i], 1 - keep_prob, None).argmax(axis=1, out=src_indices_backward[i:j])
             if args.direction == 'forward':
                 src_indices = src_indices_forward
                 trg_indices = trg_indices_forward
