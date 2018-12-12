@@ -169,17 +169,17 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
     correct = [i for i in src if translation[i] in src2trg[i]]
     incorrect = [i for i in src if translation[i] not in src2trg[i]]
 
-    # if trans_out_file:
-    #     trans_out = open(trans_out_file, "w")
-    #     trans_out.write("##########Correct:\n")
-    #
-    #     for i in correct:
-    #         print(src_words[i])
-    #         trans_out.write(src_words[i] + ": System{" + trg_words[translation[i]] + "} | Gold{" + str([trg_words[item] for item in src2trg[i]]) + "}\n")
-    #     trans_out.write("##########Incorrect:\n")
-    #     for i in incorrect:
-    #         trans_out.write(src_words[i] + ": System{" + trg_words[translation[i]] + "} | Gold{" + str([trg_words[item] for item in src2trg[i]]) + "}\n")
-    #     trans_out.close()
+    if trans_out_file:
+        trans_out = open(trans_out_file, "w")
+        trans_out.write("##########Correct:\n")
+
+        for i in correct:
+            print(src_words[i])
+            trans_out.write(src_words[i] + ": System{" + trg_words[translation[i]] + "} | Gold{" + str([trg_words[item] for item in src2trg[i]]) + "}\n")
+        trans_out.write("##########Incorrect:\n")
+        for i in incorrect:
+            trans_out.write(src_words[i] + ": System{" + trg_words[translation[i]] + "} | Gold{" + str([trg_words[item] for item in src2trg[i]]) + "}\n")
+        trans_out.close()
 
     if rpt_file:
         out_file = open(rpt_file, "a+")
