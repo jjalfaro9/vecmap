@@ -121,6 +121,7 @@ def main():
     self_learning_group.add_argument('--selective_dropout', action='store_true',  help='prevent dropout on orthography set')
     self_learning_group.add_argument('--orthographic_sim', help='path to file with data to compute sim matrix')
     self_learning_group.add_argument('--anchor', action='store_true', help='do not perform dropout on certain values based on orthography')
+
     args = parser.parse_args()
 
     other_settings = ['csls', float(1), None, 10, False, 'utf-8', 0, 'fp32', True]
@@ -373,7 +374,7 @@ def main():
                 u, s, vt = xp.linalg.svd(m, full_matrices=False)
                 print("S", s)
                 print("VT", vt)
-                return vt.T.dot(xp.diag(1/(s + 1e-5)).dot(vt))
+                return vt.T.dot(xp.diag(1/(s + 1e-4)).dot(vt))
 
             if args.whiten:
                 wx1 = whitening_transformation(xw[src_indices])
