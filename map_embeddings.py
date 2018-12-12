@@ -331,8 +331,7 @@ def main():
             w = vt.T.dot(u.T)
             x.dot(w, out=xw)
             zw[:] = z
-            print(xw)
-            print(zw)
+
             if iter_num == 0:
                 if args.skip_init:
                     xw = save_x
@@ -378,8 +377,6 @@ def main():
                 return vt.T.dot(xp.diag(1/(s + 1e-5)).dot(vt))
 
             if args.whiten:
-                print(xw[src_indices])
-                print(zw[trg_indices])
                 wx1 = whitening_transformation(xw[src_indices])
                 wz1 = whitening_transformation(zw[trg_indices])
                 xw = xw.dot(wx1)
