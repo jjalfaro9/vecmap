@@ -196,13 +196,13 @@ def main():
     src_word2ind = {word: i for i, word in enumerate(src_words)}
     trg_word2ind = {word: i for i, word in enumerate(trg_words)}
 
-    if args.add_aug_vector:
-       embeddings.normalize(x, ['unit'])
-       embeddings.normalize(z, ['unit'])
-    else:
+    # if args.add_aug_vector:
+    #    embeddings.normalize(x, ['unit'])
+    #    embeddings.normalize(z, ['unit'])
+    # else:
         # STEP 0: Normalization
-        embeddings.normalize(x, args.normalize)
-        embeddings.normalize(z, args.normalize)
+    embeddings.normalize(x, args.normalize)
+    embeddings.normalize(z, args.normalize)
     print(x[0])
     # Build the seed dictionary
     src_indices = []
@@ -370,9 +370,11 @@ def main():
                 u, s, vt = xp.linalg.svd(m, full_matrices=False)
                 print("S", s)
                 print("VT", vt)
-                return vt.T.dot(xp.diag(1/s)).dot(vt)
+                return vt.T.dot(xp.diag(1/(s + 1e-5)).dot(vt))
 
             if args.whiten:
+                print(xw[src_indices])
+                print(zw[trg_indices])
                 wx1 = whitening_transformation(xw[src_indices])
                 wz1 = whitening_transformation(zw[trg_indices])
                 xw = xw.dot(wx1)
