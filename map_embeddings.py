@@ -34,7 +34,7 @@ def dropout(m, p, ortho_sim):
         if ortho_sim is not None:
             nonzero = xp.nonzero(ortho_sim)
             print(mask.shape)
-            print(list(zip(nonzero[0], nonzero[1])))
+            #print(list(zip(nonzero[0], nonzero[1])))
             mask[list(zip(nonzero[0], nonzero[1]))] = True
         return m*mask
 
