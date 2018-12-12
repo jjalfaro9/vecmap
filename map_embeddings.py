@@ -33,8 +33,6 @@ def dropout(m, p, ortho_sim):
         mask = xp.random.rand(*m.shape) >= p
         if ortho_sim is not None:
             nonzero = xp.nonzero(ortho_sim)
-            print(mask.shape)
-            #print(list(zip(nonzero[0], nonzero[1])))
             mask[nonzero[0], nonzero[1]] = True
         return m*mask
 
