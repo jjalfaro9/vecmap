@@ -326,6 +326,8 @@ def main():
             w = vt.T.dot(u.T)
             x.dot(w, out=xw)
             zw[:] = z
+            print(xw)
+            print(zw)
             if iter_num == 0:
                 if args.skip_init:
                     xw = save_x
