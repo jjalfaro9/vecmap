@@ -160,8 +160,8 @@ def main():
     #print(src_counts[0:2])
 
     # Read input embeddings
-    srcfile = open(args.src_input, encoding=args.encoding, errors='surrogateescape')
-    trgfile = open(args.trg_input, encoding=args.encoding, errors='surrogateescape')
+    srcfile = open(args.src_input, encoding=args.encoding, errors='surrogatepass')
+    trgfile = open(args.trg_input, encoding=args.encoding, errors='surrogatepass')
     src_words, x = embeddings.read(srcfile, dtype=dtype)
     trg_words, z = embeddings.read(trgfile, dtype=dtype)
 
@@ -170,7 +170,7 @@ def main():
         z = np.concatenate((z, trg_counts), axis=1)
 
     if args.orthographic_sim:
-        f = open(args.orthographic_sim, encoding=args.encoding, errors='surrogateescape')
+        f = open(args.orthographic_sim, encoding=args.encoding, errors='surrogatepass')
         orthographic_sim = ext.orthographic_sim(f)
         f.close()
 
@@ -247,7 +247,7 @@ def main():
             src_indices.append(src_word2ind[word])
             trg_indices.append(trg_word2ind[word])
     else:
-        f = open(args.init_dictionary, encoding=args.encoding, errors='surrogateescape')
+        f = open(args.init_dictionary, encoding=args.encoding, errors='surrogatepass')
         for line in f:
             src, trg = line.split()
             try:
@@ -260,7 +260,7 @@ def main():
 
     # Read validation dictionary
     if args.validation is not None:
-        f = open(args.validation, encoding=args.encoding, errors='surrogateescape')
+        f = open(args.validation, encoding=args.encoding, errors='surrogatepass')
         validation = collections.defaultdict(set)
         oov = set()
         vocab = set()
@@ -278,7 +278,7 @@ def main():
 
     # Create log file
     if args.log:
-        log = open(args.log, mode='w', encoding=args.encoding, errors='surrogateescape')
+        log = open(args.log, mode='w', encoding=args.encoding, errors='surrogatepass')
 
     # Allocate memory
     xw = xp.empty_like(x)
@@ -332,8 +332,8 @@ def main():
                     zw[:] = save_z
 
                 if args.write_interm_emb:
-                    srcfile = open("data/new_emb/interm_out_" + str(args.src_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
-                    trgfile = open("data/new_emb/interm_out_" + str(args.trg_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogateescape')
+                    srcfile = open("data/new_emb/interm_out_" + str(args.src_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogatepass')
+                    trgfile = open("data/new_emb/interm_out_" + str(args.trg_input).split('/')[2], mode='w', encoding=args.encoding, errors='surrogatepass')
                     embeddings.write(src_words, xw, srcfile)
                     embeddings.write(trg_words, zw, trgfile)
                     srcfile.close()
@@ -492,8 +492,8 @@ def main():
     end_time = time.time()
     # Write mapped embeddings
 
-    srcfile = open(args.src_output, mode='w', encoding=args.encoding, errors='surrogateescape')
-    trgfile = open(args.trg_output, mode='w', encoding=args.encoding, errors='surrogateescape')
+    srcfile = open(args.src_output, mode='w', encoding=args.encoding, errors='surrogatepass')
+    trgfile = open(args.trg_output, mode='w', encoding=args.encoding, errors='surrogatepass')
     embeddings.write(src_words, xw, srcfile)
     embeddings.write(trg_words, zw, trgfile)
     srcfile.close()
