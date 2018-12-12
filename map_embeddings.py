@@ -29,10 +29,11 @@ def dropout(m, p, ortho_sim):
     if p <= 0.0:
         return m
     else:
-        xp = get_array_module(m)
-        mask = xp.random.rand(*m.shape) >= p
+        ar = get_array_module(m)
+        xp = get_cupy()
+        mask = ar.random.rand(*m.shape) >= p
         if ortho_sim is not None:
-            nonzero = np.transpose(np.nonzero(ortho_sim))
+            nonzero = xp.transpose(xp.nonzero(ortho_sim))
             for nz in nonzero:
                 mask[nz[0], nz[1]] = True
         return m*mask
