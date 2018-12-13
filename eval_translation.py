@@ -187,7 +187,7 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
             print(src2trg[i])
             print(src_words[i])
             print(translation[i])
-            print(trg_words[translation[i]])
+            #print(trg_words[translation[i]])
             print([trg_words[item] for item in src2trg[i]])
             try:
                 translation[i].decode('utf-8')
