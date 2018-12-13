@@ -63,6 +63,16 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
     elif p_precision == 'fp64':
         dtype = 'float64'
 
+    # NumPy/CuPy management
+    if p_cuda:
+        if not supports_cupy():
+            print('ERROR: Install CuPy for CUDA support', file=sys.stderr)
+            sys.exit(-1)
+        xp = get_cupy()
+    else:
+        xp = np
+    xp.random.seed(p_seed)
+
     if use_file_emb:
         # Read input embeddings
         srcfile = open(src_emb, encoding=p_encoding, errors='surrogateescape')
@@ -70,20 +80,12 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
         src_words, x = embeddings.read(srcfile, dtype=dtype)
         trg_words, z = embeddings.read(trgfile, dtype=dtype)
     else:
-        src_words, x = src_emb
-        trg_words, z = trg_emb
+        src_words, x = src_emb[0], xp.copy(src_emb[1])
+        trg_words, z = trg_emb[0], xp.copy(trg_emb[1])
 
-    # NumPy/CuPy management
     if p_cuda:
-        if not supports_cupy():
-            print('ERROR: Install CuPy for CUDA support', file=sys.stderr)
-            sys.exit(-1)
-        xp = get_cupy()
         x = xp.asarray(x)
         z = xp.asarray(z)
-    else:
-        xp = np
-    xp.random.seed(p_seed)
 
     # Length normalize embeddings so their dot product effectively computes the cosine similarity
     if not p_dot:
