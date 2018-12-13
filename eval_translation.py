@@ -184,6 +184,7 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
         print(type(trg_words[src2trg[incorrect[0]]][0]))
 
         for i in incorrect:
+            print(type(trg_words[src2trg[i]][0]))
             trans_out.write(u''.join(src_words[i]) + u": System{" + u''.join(trg_words[translation[i]]) + u"} | Gold{" + u''.join(u''.join(trg_words[item]) for item in src2trg[i]) + u"}\n")
             #trans_out.write(src_words[i].encode("utf-8") + ": System{" + trg_words[translation[i]].encode("utf-8") + "} | Gold{" + str([trg_words[item].encode("utf-8") for item in src2trg[i]]) + "}\n")
         trans_out.close()
