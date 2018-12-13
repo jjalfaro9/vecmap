@@ -176,25 +176,22 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
         trans_out.write(u"##########Correct:\n")
 
         for i in correct:
-            print(src_words[i])
-            trans_out.write(u''.join(src_words[i].encode("utf-8"), u": System{", trg_words[translation[i]].encode("utf-8"), u"} | Gold{", str([trg_words[item].encode("utf-8") for item in src2trg[i]]), u"}\n"))
-        trans_out.write(u"##########Incorrect:\n")
-        print(type(src_words[i]))
-        print(type(trg_words[translation[incorrect[0]]]))
-        #print(type(trg_words[src2trg[incorrect[0]]][0]))
-
-        for i in incorrect:
-            print(src2trg[i])
-            print(src_words[i])
-            print(translation[i])
-            #print(trg_words[translation[i]])
-            print([trg_words[item] for item in src2trg[i]])
             try:
                 translation[i].decode('utf-8')
             except:
                 trans_out.write("Skip\n")
                 continue
-            #print(type(trg_words[src2trg[i]][0]))
+
+            trans_out.write(u''.join(src_words[i]) + u": System{" + u''.join(trg_words[translation[i]]) + u"} | Gold{" + u''.join(u''.join(trg_words[item]) for item in src2trg[i]) + u"}\n")
+        trans_out.write(u"##########Incorrect:\n")
+
+        for i in incorrect:
+            try:
+                translation[i].encode('utf-8')
+            except:
+                trans_out.write("Skip\n")
+                continue
+
             trans_out.write(u''.join(src_words[i]) + u": System{" + u''.join(trg_words[translation[i]]) + u"} | Gold{" + u''.join(u''.join(trg_words[item]) for item in src2trg[i]) + u"}\n")
             #trans_out.write(src_words[i].encode("utf-8") + ": System{" + trg_words[translation[i]].encode("utf-8") + "} | Gold{" + str([trg_words[item].encode("utf-8") for item in src2trg[i]]) + "}\n")
         trans_out.close()
