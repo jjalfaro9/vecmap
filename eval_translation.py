@@ -181,7 +181,7 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
         trans_out.write(u"##########Incorrect:\n")
         print(type(src_words[i]))
         print(type(trg_words[translation[incorrect[0]]]))
-        print(type(trg_words[src2trg[incorrect[0]]][0]))
+        #print(type(trg_words[src2trg[incorrect[0]]][0]))
 
         for i in incorrect:
             print(type(trg_words[src2trg[i]][0]))
