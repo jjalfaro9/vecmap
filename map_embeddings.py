@@ -374,7 +374,7 @@ def main():
                 u, s, vt = xp.linalg.svd(m, full_matrices=False)
                 print("S", s)
                 print("VT", vt)
-                return vt.T.dot(xp.diag(1/(s + 1e-4)).dot(vt))
+                return vt.T.dot(xp.diag(1/(s + 1e-5)).dot(vt))
 
             if args.whiten:
                 wx1 = whitening_transformation(xw[src_indices])
