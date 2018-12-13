@@ -177,7 +177,7 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
 
         for i in correct:
             try:
-                translation[i].decode('utf-8')
+                trg_words[translation[i]].encode('utf-8')
             except:
                 trans_out.write("Skip\n")
                 continue
@@ -187,7 +187,7 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
 
         for i in incorrect:
             try:
-                translation[i].encode('utf-8')
+                trg_words[translation[i]].encode('utf-8')
             except:
                 trans_out.write("Skip\n")
                 continue
