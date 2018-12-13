@@ -20,7 +20,7 @@ import argparse
 import collections
 import numpy as np
 import sys
-
+import codecs
 
 BATCH_SIZE = 500
 
@@ -172,7 +172,7 @@ def eval_translation(src_emb, trg_emb, use_file_emb, test_dict, rpt_file, run_ms
     incorrect = [i for i in src if translation[i] not in src2trg[i]]
 
     if trans_out_file:
-        trans_out = open(trans_out_file, "w")
+        trans_out = codecs.open(trans_out_file, "w", "utf-8")
         trans_out.write("##########Correct:\n")
 
         for i in correct:

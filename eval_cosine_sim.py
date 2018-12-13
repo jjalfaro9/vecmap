@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import argparse
 from cupy_utils import *
-
+import codecs
 def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, output_file):
     if use_file_emb:
         src_in = open(src_data, encoding="utf-8", errors='surrogateescape')
@@ -83,7 +83,7 @@ def eval_cosine_sim(src_data, trg_data, use_file_emb, dict_path, sameLanguage, o
         output_list = sorted(output_list, key=lambda x: x[2], reverse=True)
 
         if output_file:
-            out_file = open(output_file, "w")
+            out_file = codecs.open(output_file, "w", "utf-8")
             for item in output_list:
                 out_file.write(item[0] + " " + item[1] + " " + item[2] + "\n")
             out_file.close()
