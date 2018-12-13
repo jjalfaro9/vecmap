@@ -324,6 +324,7 @@ def main():
             last_improvement = it
             if not end and args.report_interval != -1:
                 eval_translation((src_words, xw), (trg_words, zw), False, args.test_dict, "report.txt", "Run " + str(args.run_number) + ", It " + str(it - 1) + " (rate change from " + str(store) + " to " + str(keep_prob) + "):", None, other_settings)
+                eval_cosine_sim((src_words, xw), (trg_words, zw), False, args.test_dict, False, None)
 
         # Update the embedding mapping
         if args.orthogonal or not end:#or args.add_aug_vector:  # orthogonal mapping
