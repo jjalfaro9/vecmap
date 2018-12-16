@@ -193,8 +193,8 @@ def main():
         xp = np
     xp.random.seed(args.seed)
 
-    save_x = x
-    save_z = z
+    save_x = xp.copy(x)
+    save_z = xp.copy(z)
 
     start_time = time.time()
     # Build word to index map
